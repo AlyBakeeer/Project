@@ -1,0 +1,31 @@
+#include "stm32f4xx_hal.h"
+
+UART_HandleTypeDef huart2;
+
+void SystemClock_Config(void);
+static void MX_GPIO_Init(void);
+static void MX_USART2_UART_Init(void);
+
+uint8_t rxData;
+char txData[30] = "";
+
+int main(void) {
+  HAL_Init();
+  SystemClock_Config();
+  MX_GPIO_Init();
+  MX_USART2_UART_Init();
+
+  while (1) {
+    HAL_UART_Receive(&huart2, &rxData, 1, 100);
+
+    if(rxData == '1') {
+      HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_SET);
+    } else if(rxData == '0') {
+      HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_RESET);
+    }
+
+    if(HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_13) == GPIO_PIN_RESET) {
+      HAL_UART_Transmit(&huart2, (uint8_t*)txData, strlen(txData), 100);
+    }
+  }
+}
